@@ -194,8 +194,6 @@ function tempSave(name,string)
 	  }
 	  return false;
 	}
-  
-  if(document.getElementById("2d")){
 
 //Make Screen
 var loaded = false;
@@ -222,6 +220,3 @@ var loaded = false;
 		}else{
 		console.log("Game Err: void run() was not found");
 	}
-}else{
-	console.log("Game Err: No Gamescript Specified")
-}
