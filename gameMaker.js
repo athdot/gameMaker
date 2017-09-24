@@ -1,20 +1,6 @@
-//Make Screen
-var loaded = false;
-function setupScreen()
-{
-  var screen = document.createElement("canvas");
-  screen.width = window.innerWidth;
-  screen.height = window.innerHeight;
-  screen.id = "gamescreen";
-  screen.style = "border: none; position:absolute; top:0; left:0;";
-  document.body.appendChild(screen);
-  var screenctx = screen.getContext("2d");
-  screenctx.fillStyle = "black";
-  screenctx.fillRect(0,0,screen.width,screen.height);
-}
-setupScreen();
 var mouseX = 0;
 var mouseY = 0;
+
 onmousemove = function(e){
 mouseX = e.clientX;
 mouseY = e.clientY;
@@ -29,6 +15,14 @@ document.body.onmouseup = function() {
 }
 
 window.onresize = fixHeight;
+
+//KeyPressed
+var map = {}; // You could also use an array
+onkeydown = onkeyup = function(e){
+    e = e || event; // to deal with IE
+    map[e.keyCode] = e.type == 'keydown';
+    /* insert conditional here */
+}
 
 //Callable functions
 function randInt(min,max){
@@ -116,83 +110,118 @@ function tempSave(name,string)
   	var checky = document.createElement("div");
     checky.id = name;
     checky.style = "display:none;";
-    checky.innerHTML = (string+"");
-    document.body.appendChild(checky);
-  }else{
-  	check.innerHTML = string;
-  }
-}
+  	  checky.innerHTML = (string+"");
+  	  document.body.appendChild(checky);
+ 	 }else{
+  		check.innerHTML = string;
+  	}
+	}
 
-function longSave(name,string)
-{
-  	var d = new Date();
-    d.setTime(d.getTime() + ((30)*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = name + "=" + string + ";" + expires + ";path=/";
-}
+	function longSave(name,string)
+	{
+  		var d = new Date();
+  	  d.setTime(d.getTime() + ((30)*24*60*60*1000));
+  	  var expires = "expires="+ d.toUTCString();
+ 	   document.cookie = name + "=" + string + ";" + expires + ";path=/";
+	}
 
-function getSave(namen)
-{
-	var non = null;
-	var name = namen + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            var non = c.substring(name.length, c.length);
-        }
-    }
+	function getSave(namen)
+	{
+		var non = null;
+		var name = namen + "=";
+ 	   var decodedCookie = decodeURIComponent(document.cookie);
+ 	   var ca = decodedCookie.split(';');
+ 	   for(var i = 0; i <ca.length; i++) {
+  	      var c = ca[i];
+  	      while (c.charAt(0) == ' ') {
+   	         c = c.substring(1);
+   	     }
+  	      if (c.indexOf(name) == 0) {
+  	          var non = c.substring(name.length, c.length);
+   	     }
+  	  }
   
-	var yen = document.getElementById(namen);
-  if(yen != null){
-  	return	yen.innerHTML;
-  }else if(non != null){
-  	return non;
-  }else{
-  	console.log("Game Err: Input Name '" + namen + "' is missing or inncorect");
-    return "";
-  }
-}
+		var yen = document.getElementById(namen);
+ 	 if(yen != null){
+  		return	yen.innerHTML;
+	  }else if(non != null){
+  		return non;
+ 	 }else{
+ 	 		console.log("Game Err: Input Name '" + namen + "' is missing or inncorect");
+ 	   return "";
+	  }
+	}
 
-function loadImage(src,x,y,width,height)
-{
-	var a = document.getElementById("gamescreen");
-  var b = a.getContext("2d");
-  var img = new Image();
-	img.onload = function() {
-    b.drawImage(img, x, y, width, height);
-	};
-	img.src = src;
-}
+	function loadImage(src,x,y,width,height)
+	{
+		var a = document.getElementById("gamescreen");
+	  var b = a.getContext("2d");
+ 	 var img = new Image();
+		img.onload = function() {
+ 	   b.drawImage(img, x, y, width, height);
+		};
+		img.src = src;
+	}
 
-function editImage(src,effect,percent)
-{
-	var image = new Image();
-  image.src = src;
-  image.style = "visibility: hidden;";
-  document.body.appendChild(image);
-	var editframe = document.createElement("canvas");
-  editframe.width = image.width;
-  editframe.height = image.height;
-  editframe.style = "display:none;";
-  document.body.appendChild(editframe);
-  var ctx = editframe.getContext("2d");
+	function loadMap(src,x,y,scale)
+	{
+   if(scale == null){
+ 	  	scale = 1;
+ 	 }
+   var a = document.getElementById("gamescreen");
+ 	 var b = a.getContext("2d");
+		var img = new Image();
+		img.onload = function() {
+	    var w = img.width/2;
+	    var h = img.height/2;
+ 	   b.drawImage(img, x-w, y-h,img.width*scale,img.height*scale);
+		};
+		img.src = src;
+	}
+	
+	function keyDown(key)
+	{
+		if(key == " "){
+	  	var key = 32;
+	  }
+		if(isNaN(key)){
+  		var kay = key.charCodeAt(0);
+  	}else{
+	  	var kay = key;
+	  }
+	  if(map[kay]){
+	  	return true;
+	  }
+	  return false;
+	}
   
-  if(percent > 1){
-  	console.log("Game Err: editImage() Percent is greater than one");
-    return;
-  }
-  
-  //effects...
-  if(effect === "pixelate"){
-  	var sizex = (1-percent)*image.width;
-    var sizey = (1-percent)*image.height;
-    ctx.drawImage(image,0,0,sizex,sizey);
-    var url = editframe.toDataURL();
-  }
-  return url;
+  if(document.getElementById("2d")){
+
+//Make Screen
+var loaded = false;
+  var screen = document.createElement("canvas");
+  screen.width = window.innerWidth;
+  screen.height = window.innerHeight;
+  screen.id = "gamescreen";
+  screen.style = "border: none; position:absolute; top:0; left:0;";
+  document.body.appendChild(screen);
+  var screenctx = screen.getContext("2d");
+  screenctx.fillStyle = "black";
+  screenctx.fillRect(0,0,screen.width,screen.height);
+
+	if (typeof setup == 'function') { 
+ 	 setup(); 
+	}else{
+		console.log("Game Err: void setup() was not found");
+	}
+
+	if (typeof run == 'function') { 
+		setInterval(function(){
+			run();
+		},10);
+		}else{
+		console.log("Game Err: void run() was not found");
+	}
+}else{
+	console.log("Game Err: No Gamescript Specified")
 }
